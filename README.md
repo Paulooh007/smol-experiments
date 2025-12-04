@@ -13,7 +13,7 @@ I explore methods to align a base model to follow grammatical correction instruc
 * **SFT (Supervised Fine-Tuning):** Establishing a baseline for instruction following.
 * **DPO (Direct Preference Optimization):** Optimizing using edit-distance-based preference pairs.
 * **CPO (Contrastive Preference Optimization):** Exploring memory-efficient alternatives to DPO.
-* *Result:* Achieved ~0.49 BLEU score with SFT+DPO.
+* *Result:* Achieved ~0.49 BLEU score with SFT+DPO (still quite poor).
 
 ### 2. MoE Upcycling & Continued Pre-training
 I transform the dense SmolLM-135M into a **SmolMoE** (Mixture of Experts) model.
