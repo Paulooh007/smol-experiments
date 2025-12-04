@@ -13,7 +13,7 @@ I explore methods to align a base model to follow grammatical correction instruc
 * **SFT (Supervised Fine-Tuning):** Establishing a baseline for instruction following.
 * **DPO (Direct Preference Optimization):** Optimizing using edit-distance-based preference pairs.
 * **CPO (Contrastive Preference Optimization):** Exploring memory-efficient alternatives to DPO.
-* *Result:* Achieved ~0.49 BLEU score with SFT+DPO (still quite poor).
+* *Result:* Achieved ~0.49 BLEU score with SFT+DPO.
 
 ### 2. MoE Upcycling & Continued Pre-training
 I transform the dense SmolLM-135M into a **SmolMoE** (Mixture of Experts) model.
@@ -36,21 +36,24 @@ I force specific experts to specialize in distinct domains (Code, Math, Chat) us
 
 ### MoE Utilization and Stability
 
-The plot below shows the training performance and the expert usage stability during continued pre-training.
+This plot shows the stabilization of training metrics during continued pre-training on the Cosmopedia dataset.
+![](viz/continued_pretaining.png)
 
-| Training Performance | Expert Utilization |
-| :---: | :---: |
-| ![](viz/continued_pretaining.png) | ![](viz/active_experts.png) |
+This plot tracks the percentage of active experts over time, confirming the router successfully avoided collapse.
+![](viz/active_experts.png)
 
 ### Expert Routing Matrix
 
-These heatmaps visualize the token distribution across experts before and after the specialization training regimen, followed by a detailed token-level analysis demonstrating specialization in action.
+**Routing Before Specialization**
+This visualization shows the initial, unspecialized distribution of tokens across experts.
+![](viz/routing_before_specialization.png)
 
-| Routing Before Specialization | Routing After Specialization |
-| :---: | :---: |
-| ![](viz/routing_before_specialization.png) | ![](viz/routing_after_specialization.png) |
+**Routing After Specialization**
+This visualization confirms the successful specialization of experts after targeted training.
+![](viz/routing_after_specialization.png)
 
-#### Token-Level Routing Detail
+**Token-Level Routing Detail**
+A granular analysis demonstrating the model correctly routing individual tokens based on domain context.
 ![](viz/token_routing_analysis.png)
 
 ---
