@@ -55,6 +55,7 @@ This visualization confirms the successful specialization of experts after targe
 **Token-Level Routing Detail**
 A granular analysis demonstrating the model correctly routing individual tokens based on domain context.
 ![](viz/token_routing_analysis.png)
+![](viz/token_routing_analysis_2.png)
 
 ---
 
