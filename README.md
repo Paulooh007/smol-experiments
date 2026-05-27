@@ -11,26 +11,26 @@ See notebook walkthrough: [![Open In Colab](https://colab.research.google.com/as
 ## 🔬 Experiments
 
 ### 1. Alignment & Instruction Tuning
-I explore methods to align a base model to follow grammatical correction instructions using the **CoEdIT** dataset.
+I explore methods to align a base model to follow grammatical correction instructions using the **[CoEdIT](https://huggingface.co/datasets/grammarly/coedit)** dataset.
 * **SFT (Supervised Fine-Tuning):** Establishing a baseline for instruction following.
 * **DPO (Direct Preference Optimization):** Optimizing using edit-distance-based preference pairs.
 * **CPO (Contrastive Preference Optimization):** Exploring memory-efficient alternatives to DPO.
-* *Result:* Achieved ~0.49 BLEU score with SFT+DPO.
+* *Result:* Achieved ~0.49 BLEU score with SFT+DPO (still terrible).
 
 ### 2. MoE Upcycling & Continued Pre-training
 I transform the dense SmolLM-135M into a **SmolMoE** (Mixture of Experts) model.
-* **Upcycling:** Initializing MoE weights from the dense checkpoint using "SwiGLU" duplication.
+* **Upcycling:** Initializing MoE weights from the dense checkpoint ([Reference paper](https://arxiv.org/abs/2212.05055)). 
 * **Router Training:** Validated using Load Balancing Loss.
 * **Continuous Pre-training:** Training on the **Cosmopedia** dataset to stabilize the upcycled model.
 
 ### 3. Expert Specialization
 I force specific experts to specialize in distinct domains (Code, Math, Chat) using architectural modifications and loss guidance.
-* **Dataset:** Interleaved subsets from `Llama-Nemotron-Post-Training-Dataset`.
+* **Dataset:** Interleaved subsets from [Llama-Nemotron-Post-Training-Dataset](https://huggingface.co/datasets/nvidia/Nemotron-Post-Training-Dataset-v1).
 * **Methodology:**
     1.  **Router Guidance Loss:** KL Divergence loss forcing tokens from specific domains to specific experts.
     2.  **Two-Stage Training:** * *Stage A:* Freeze model, warm-start router with high guidance.
         * *Stage B:* Joint tuning of router and experts.
-* *Result:* Achieved >90% routing accuracy for Math tokens to the Math Expert.
+* *Result:* Achieved >80% routing accuracy for Math tokens to the Math Expert.
 
 ---
 
