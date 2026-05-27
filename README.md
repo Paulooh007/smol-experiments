@@ -4,6 +4,8 @@ A collection of experiments exploring the lifecycle of Small Language Models (SL
 
 The experiments utilize [SmolLM-135M](https://huggingface.co/HuggingFaceTB/SmolLM-135M) as the base model.
 
+See notebook walkthrough: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1OoyEdkA2fkhKzFQDyVhjPGMYQB0Qp_PN?usp=sharing)
+
 ---
 
 ## 🔬 Experiments
