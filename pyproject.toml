@@ -1,0 +1,31 @@
+[project]
+name = "smol-experiments"
+version = "0.1.0"
+description = "Compute-friendly experiments for learning with small language models."
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "accelerate>=0.30",
+    "datasets>=2.19",
+    "evaluate>=0.4",
+    "fast_edit_distance",
+    "numpy",
+    "torch>=2.1",
+    "transformers==4.57.1",
+    "trl==0.24.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+]
+modal = [
+    "modal>=1.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

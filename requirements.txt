@@ -1,11 +1,16 @@
-torch
+# Core (versions verified to work together)
+torch>=2.1
+transformers==4.57.1
+trl==0.24.0            # last release tested with SFT/DPO/CPO trainers as used here
+datasets>=2.19
+accelerate>=0.30
+evaluate>=0.4          # BLEU metric
 numpy
-pandas
-matplotlib
-seaborn
-transformers
-datasets
-trl
-evaluate
-huggingface_hub
+pytest>=8.0
+
+# Optional but recommended: fast C edit distance for preference-pair ranking.
+# A pure-Python fallback is built in, so installation failures are not fatal.
 fast_edit_distance
+
+# Optional Modal support:
+# modal>=1.0

@@ -1,45 +1,62 @@
+"""Shared utilities: hardware detection, dtype selection, and seeding.
+
+Every script in this repo must run on CPU, Apple Silicon Macs, free-tier Colab
+T4s (no bf16 support), and Ampere+ GPUs (bf16). The helpers here centralize
+that logic so no script ever hardcodes "cuda" or a dtype.
+"""
+
+import random
+
+import numpy as np
 import torch
-import evaluate
 
-def process_in_batches(ds, model, tokenizer, generate_params, batch_size=16, field="src"):
-    """Generates text in batches for evaluation."""
-    outputs = []
-    start = 0
-    
-    while start < len(ds[field]):
-        end = min(start + batch_size, len(ds[field]))
-        batch = ds[field][start:end]
-        
-        # Basic formatting if needed, otherwise pass raw
-        prompts = [t + " ###>" for t in batch] if "###>" not in batch[0] else batch
 
-        try:
-            inputs = tokenizer(prompts, return_tensors="pt", padding=True, truncation=True, max_length=128).to(model.device)
-            with torch.no_grad():
-                gen_ids = model.generate(**inputs, **generate_params, pad_token_id=tokenizer.eos_token_id)
-            
-            decoded = tokenizer.batch_decode(gen_ids, skip_special_tokens=True)
-            # Extract response after separator
-            res = [txt.split("###>")[-1].strip() for txt in decoded]
-            outputs.extend(res)
-            start = end
-        except RuntimeError as e:
-            if "out of memory" in str(e):
-                print("OOM. Halving batch size.")
-                batch_size //= 2
-                torch.cuda.empty_cache()
-                if batch_size == 0: raise e
-            else:
-                raise e
-                
-    return outputs
+def get_device() -> torch.device:
+    """Return the best available local device.
 
-def compute_bleu(model, tokenizer, dataset):
-    """Computes BLEU score on a test dataset."""
-    gen_params = {"max_new_tokens": 128, "do_sample": True, "num_beams": 1}
-    preds = process_in_batches(dataset, model, tokenizer, gen_params, batch_size=8)
-    targets = dataset["tgt"]
-    
-    bleu = evaluate.load("bleu")
-    results = bleu.compute(predictions=preds, references=targets)
-    return results["bleu"]
+    CUDA wins when present because it supports the mixed-precision paths used
+    by the custom training loops. On Apple Silicon, MPS is the next-best local
+    target; it runs the repo in float32 without AMP.
+    """
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    mps_backend = getattr(torch.backends, "mps", None)
+    if mps_backend is not None and mps_backend.is_available():
+        return torch.device("mps")
+    return torch.device("cpu")
+
+
+def get_autocast_dtype() -> torch.dtype:
+    """Auto-detect the best precision for the current hardware.
+
+    - Ampere+ GPUs (compute capability >= 8.0): bfloat16
+    - Older GPUs such as the Colab T4: float16 (T4 does NOT support bf16)
+    - Apple MPS / CPU: float32 (AMP is not used for these devices in this repo)
+    """
+    if torch.cuda.is_available() and torch.cuda.is_bf16_supported():
+        return torch.bfloat16
+    elif torch.cuda.is_available():
+        return torch.float16
+    return torch.float32
+
+
+def amp_enabled(device: torch.device) -> bool:
+    """Mixed-precision autocast is only used when running on CUDA."""
+    return device.type == "cuda"
+
+
+def set_seed(seed: int = 42) -> None:
+    """Seed python, numpy and torch (incl. CUDA) for reproducibility."""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+
+def count_parameters(model: torch.nn.Module, trainable_only: bool = False) -> int:
+    """Total (or trainable) parameter count of a model."""
+    params = model.parameters()
+    if trainable_only:
+        params = (p for p in params if p.requires_grad)
+    return sum(p.numel() for p in params)

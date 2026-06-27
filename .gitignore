@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+outputs/*
+!outputs/.gitkeep
+.venv/
+artifacts/
+
+.DS_Store
+.pytest_cache/
+*.pt
+*.safetensors
